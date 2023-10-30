@@ -15,22 +15,27 @@ const pool = new Pool({
 app.post('/login', async (req, res) => {
     const { usuario, senha } = req.body;
 
+    // Buscar o usuário pelo email no banco de dados
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [usuario]);
     const user = result.rows[0];
 
     if (!user) {
-        return res.status(401).json({ success: false });
+        return res.status(401).json({ success: false, message: "Usuário não encontrado" });
     }
 
+    // Comparar a senha fornecida com a senha encriptada armazenada no banco de dados
     const match = await bcrypt.compare(senha, user.senha);
 
     if (match) {
-        const token = jwt.sign({ id: user.id, role: user.role }, '@suus0220##', { expiresIn: '1h' });
+        // Senhas correspondem
+        const token = jwt.sign({ id: user.id, role: user.role }, 'your-secret-key', { expiresIn: '1h' });
         return res.json({ success: true, token, role: user.role });
     } else {
-        return res.status(401).json({ success: false });
+        // Senhas não correspondem
+        return res.status(401).json({ success: false, message: "Senha incorreta" });
     }
 });
+
 
 const PORT = 3001;
 app.listen(PORT, () => {
