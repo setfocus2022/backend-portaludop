@@ -8,10 +8,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const pool = new Pool({
-    connectionString: 'postgres://conectfam:NAZVSTm5pac8@ep-delicate-poetry-48710359.us-east-2.aws.neon.tech/portalUDOP'
-});
 
+const pool = new Pool({
+    connectionString: 'postgres://conectfam:NAZVSTm5pac8@ep-delicate-poetry-48710359.us-east-2.aws.neon.tech/portalUDOP',
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  });
+  
 app.post('/login', async (req, res) => {
     const { usuario, senha } = req.body;
 
@@ -27,7 +31,7 @@ app.post('/login', async (req, res) => {
     const match = await bcrypt.compare(senha, user.senha);
     console.log(`Comparing passwords: ${senha} vs ${user.senha}`);
     console.log(`Match: ${match}`);
-    
+
     if (match) {
         // Senhas correspondem
         const token = jwt.sign({ id: user.id, role: user.role }, 'your-secret-key', { expiresIn: '1h' });
