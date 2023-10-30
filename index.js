@@ -25,7 +25,7 @@ app.post('/login', async (req, res) => {
     const match = await bcrypt.compare(senha, user.senha);
 
     if (match) {
-        const token = jwt.sign({ id: user.id, role: user.role }, 'your-secret-key', { expiresIn: '1h' });
+        const token = jwt.sign({ id: user.id, role: user.role }, '@suus0220##', { expiresIn: '1h' });
         return res.json({ success: true, token, role: user.role });
     } else {
         return res.status(401).json({ success: false });
