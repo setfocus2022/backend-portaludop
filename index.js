@@ -25,7 +25,9 @@ app.post('/login', async (req, res) => {
 
     // Comparar a senha fornecida com a senha encriptada armazenada no banco de dados
     const match = await bcrypt.compare(senha, user.senha);
-
+    console.log(`Comparing passwords: ${senha} vs ${user.senha}`);
+    console.log(`Match: ${match}`);
+    
     if (match) {
         // Senhas correspondem
         const token = jwt.sign({ id: user.id, role: user.role }, 'your-secret-key', { expiresIn: '1h' });
