@@ -5,7 +5,22 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
+// Lista de origens permitidas
+const whitelist = ['http://localhost:3000', 'https://portaludop.vercel.app'];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,  // Permitir cookies CORS
+};
+
+// Habilitar CORS com as opções especificadas
+app.use(cors(corsOptions));
 app.use(express.json());
 
 
