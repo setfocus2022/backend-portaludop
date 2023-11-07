@@ -56,6 +56,28 @@ app.post('/login', async (req, res) => {
         return res.status(401).json({ success: false, message: "Senha incorreta" });
     }
 });
+app.get('/empresa', async (req, res) => {
+  const { usuario } = req.query;
+
+  // Certifique-se de que o nome de usuário foi fornecido
+  if (!usuario) {
+    return res.status(400).json({ success: false, message: "Nome de usuário é necessário" });
+  }
+
+  // Buscar a empresa do usuário no banco de dados
+  try {
+    const result = await pool.query('SELECT empresa FROM users WHERE email = $1', [usuario]);
+    const user = result.rows[0];
+
+    if (user && user.empresa) {
+      return res.json({ success: true, empresa: user.empresa });
+    } else {
+      return res.status(404).json({ success: false, message: "Usuário não encontrado" });
+    }
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Erro ao buscar a empresa do usuário", error: error.message });
+  }
+});
 
 
 const PORT = 3001;
