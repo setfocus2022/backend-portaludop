@@ -1,12 +1,28 @@
 const express = require('express');
 const { Pool } = require('pg');
-const bcrypt = require('bcrypt');
+
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 
+const bcrypt = require('bcrypt');
+
+async function hashPassword(password) {
+  const saltRounds = 10; // Recomenda-se usar um valor alto para maior segurança
+  const salt = await bcrypt.genSalt(saltRounds);
+  const hash = await bcrypt.hash(password, salt);
+  return hash;
+}
+
+(async () => {
+  const senha = '@Admin';
+  const senhaEncriptada = await hashPassword(senha);
+  console.log(senhaEncriptada); // Imprime a senha bcrypt
+})();
+
+
 const app = express();
 // Lista de origens permitidas
-const whitelist = ['http://localhost:3000', 'https://backend-avalie.onrender.com'];
+const whitelist = ['http://localhost:3000', 'https://backend-avalie.onrender.com', 'https://avalieimoveis.vercel.app'];
 
 const corsOptions = {
   origin: function (origin, callback) {
