@@ -25,7 +25,7 @@ app.use(express.json());
 
 
 const pool = new Pool({
-    connectionString: 'postgres://conectfam:NAZVSTm5pac8@ep-delicate-poetry-48710359.us-east-2.aws.neon.tech/portalUDOP',
+    connectionString: 'postgresql://avalie_imoveis_owner:rqBTYR6N5bks@ep-dawn-forest-a5321xho.us-east-2.aws.neon.tech/avalie_imoveis?sslmode=require',
     ssl: {
       rejectUnauthorized: false,
     },
