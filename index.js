@@ -6,7 +6,7 @@ const cors = require('cors');
 
 const app = express();
 
-// Lista de origens permitidas (adicionar todas as origens necessárias)
+// Lista de origens permitidas
 const whitelist = ['http://localhost:3000', 'https://backend-avalie.onrender.com', 'https://avalieimoveis.vercel.app'];
 
 const corsOptions = {
@@ -17,12 +17,10 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true,  // Permitir cookies CORS
+  credentials: true,
 };
 
-// Habilitar CORS com as opções especificadas
 app.use(cors(corsOptions));
-
 app.use(express.json());
 
 const pool = new Pool({
@@ -32,6 +30,15 @@ const pool = new Pool({
   },
 });
 
+// Função para gerar hash da senha
+async function hashPassword(password) {
+  const saltRounds = 10;
+  const salt = await bcrypt.genSalt(saltRounds);
+  const hash = await bcrypt.hash(password, salt);
+  return hash;
+}
+
+// Rota de login
 app.post('/login', async (req, res) => {
   const { usuario, senha } = req.body;
 
@@ -63,6 +70,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
+// Rota para buscar a empresa do usuário
 app.get('/empresa', async (req, res) => {
   const { usuario } = req.query;
 
@@ -84,20 +92,29 @@ app.get('/empresa', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3001; // Usar a porta definida pelo Render ou 3001
+// Nova rota de registro
+app.post('/register', async (req, res) => {
+  const { email, senha, empresa } = req.body;
+
+  try {
+    // Gerar hash da senha
+    const hashedPassword = await hashPassword(senha);
+
+    // Inserir novo usuário no banco de dados
+    const result = await pool.query(
+      'INSERT INTO users (email, senha, empresa, role) VALUES ($1, $2, $3, $4) RETURNING *',
+      [email, hashedPassword, empresa, 'admin'] // 'user' é a role padrão, ajuste se necessário
+    );
+
+    const newUser = result.rows[0];
+    res.json({ success: true, user: newUser });
+  } catch (error) {
+    console.error("Erro ao registrar usuário:", error);
+    res.status(500).json({ success: false, message: "Erro ao registrar usuário" });
+  }
+});
+
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-async function hashPassword(password) {
-  const saltRounds = 10; 
-  const salt = await bcrypt.genSalt(saltRounds);
-  const hash = await bcrypt.hash(password, salt);
-  return hash;
-}
-
-(async () => {
-  const senha = '@Admin';
-  const senhaEncriptada = await hashPassword(senha);
-  console.log(senhaEncriptada); 
-})();
