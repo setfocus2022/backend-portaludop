@@ -6,7 +6,7 @@ const cors = require('cors');
 
 const app = express();
 // Lista de origens permitidas
-const whitelist = ['http://localhost:3000', 'https://portaludop.vercel.app'];
+const whitelist = ['http://localhost:3000', 'https://backend-avalie.onrender.com'];
 
 const corsOptions = {
   origin: function (origin, callback) {
